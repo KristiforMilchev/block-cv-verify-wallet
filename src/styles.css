@@ -1,0 +1,33 @@
+/* You can add global styles to this file, and also import other style files */
+.center-horizontal {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+
+}
+
+.signOutBtn {
+    border-radius: 0;
+}
+
+.disconnect {
+    height: 1.6rem;
+    width: 1.6rem;
+    -webkit-mask: url('assets/custom/disconnect.svg') no-repeat center;
+    mask: url('assets/custom/disconnect.svg') no-repeat center;
+    background-color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
+    background-size: contain;
+    margin-right: 4px;
+}
+
+
+.btn.bg-danger-subtle:hover>.disconnect {
+    height: 1.6rem;
+    width: 1.6rem;
+    -webkit-mask: url('assets/custom/disconnect.svg') no-repeat center;
+    mask: url('assets/custom/disconnect.svg') no-repeat center;
+    background-color: var(--bs-white) !important;
+    background-size: contain;
+    margin-right: 4px;
+}
