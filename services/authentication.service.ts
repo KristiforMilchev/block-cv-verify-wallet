@@ -13,7 +13,7 @@ import { UtilsService } from '../helpers/utils';
 export class AuthenticationService {
   apiPath: string = 'v1';
   projectId = process.env['WalletConnect'] || 'UNDEFINED';
-  private provider?: Eip1193Provider;
+  public provider?: Eip1193Provider;
   private modal?: Web3Modal;
   metadata = {
     name: 'My Website',
@@ -31,6 +31,14 @@ export class AuthenticationService {
       rpcUrl: 'https://cloudflare-eth.com',
     };
 
+    const testnet = {
+      chainId: 1337,
+      name: 'Shadowkeep',
+      currency: 'ETH',
+      explorerUrl: 'https://etherscan.io',
+      rpcUrl: 'https://rpc.blockcert.net',
+    };
+
     const ethersConfig = defaultConfig({
       metadata: this.metadata,
       enableEIP6963: true,
@@ -42,7 +50,7 @@ export class AuthenticationService {
 
     this.modal = createWeb3Modal({
       ethersConfig,
-      chains: [mainnet],
+      chains: [mainnet, testnet],
       projectId: this.projectId,
       enableAnalytics: false,
     });
@@ -160,6 +168,31 @@ export class AuthenticationService {
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       return '';
+    }
+  }
+
+  async getConnectedAddress(
+    provider: Eip1193Provider
+  ): Promise<string | undefined> {
+    if (window.ethereum) {
+      try {
+        const accounts = await provider.request({
+          method: 'eth_requestAccounts',
+        });
+
+        if (accounts && accounts.length > 0) {
+          return accounts[0];
+        } else {
+          console.log('No accounts found.');
+          return undefined;
+        }
+      } catch (error) {
+        console.error('Failed to get connected address:', error);
+        return undefined;
+      }
+    } else {
+      console.error('Ethereum provider not found');
+      return undefined;
     }
   }
 }

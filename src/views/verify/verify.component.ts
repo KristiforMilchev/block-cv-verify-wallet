@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AuthenticationService } from '../../../services/authentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createInjectableType } from '@angular/compiler';
+import { WalletService } from '../../../services/wallet.service';
 
 @Component({
   selector: 'app-verify',
@@ -16,7 +17,8 @@ export class VerifyComponent {
   signature?: string;
   constructor(
     public authService: AuthenticationService,
-    private router: ActivatedRoute
+    private router: ActivatedRoute,
+    private walletService: WalletService
   ) {}
 
   ngOnInit() {
@@ -31,21 +33,9 @@ export class VerifyComponent {
   }
 
   async onGenerateSignature() {
-    if (this.challenge == null) return;
+    let signature = await this.walletService.generateSignature();
 
-    this.signature = await this.authService.sign(this.challenge!);
-  }
-
-  copy() {
-    navigator.clipboard
-      .writeText(this.signature!)
-      .then(() => {
-        console.log('Text copied to clipboard');
-        this.closeCurrentTab();
-      })
-      .catch((err) => {
-        console.error('Could not copy text: ', err);
-      });
+    window.opener.postMessage({ signature: signature }, '*');
   }
 
   closeCurrentTab(): void {
