@@ -36,9 +36,6 @@ export class VerifyComponent {
     let signature = await this.walletService.generateSignature();
 
     window.opener.postMessage({ signature: signature }, '*');
-  }
-
-  closeCurrentTab(): void {
     window.close();
   }
 }
