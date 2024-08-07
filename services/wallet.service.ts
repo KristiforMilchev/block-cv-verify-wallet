@@ -29,6 +29,7 @@ export class WalletService {
     return {
       Message: data.message,
       Signature: signature,
+      Nounce: data.nonce,
     };
   }
 }
