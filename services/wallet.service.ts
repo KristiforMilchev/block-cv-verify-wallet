@@ -30,6 +30,7 @@ export class WalletService {
       Message: data.message,
       Signature: signature,
       Nounce: data.nonce,
+      Address: address,
     };
   }
 }
