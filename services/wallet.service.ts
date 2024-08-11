@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { keccak256, solidityPacked, toUtf8Bytes } from 'ethers';
+import { keccak256, solidityPacked } from 'ethers';
 import { AuthenticationService } from './authentication.service';
 import { SignatureData } from '../models/signature-data';
 
@@ -10,20 +10,18 @@ export class WalletService {
   constructor(private authService: AuthenticationService) {}
 
   private async generateVerificationCode(address: string) {
-    const nonce = Date.now(); // Generate a nonce or UUID for uniqueness
+    const nonce = Date.now();
+    const message = solidityPacked(['address', 'uint256'], [address, nonce]);
+    const messageHash = keccak256(message);
 
-    // Construct the message
-    const message = 'Your original message or data here'; // this is the original data before hashing
-
-    // Generate the message hash using ethers
-    const messageHash = keccak256(toUtf8Bytes(message));
-
-    // Add the Ethereum signed message prefix and hash it again
-    const prefixedMessageHash = keccak256(
-      toUtf8Bytes(`\x19Ethereum Signed Message:\n32${messageHash}`)
+    const ethSignedMessageHash = keccak256(
+      solidityPacked(
+        ['string', 'bytes32'],
+        ['\x19Ethereum Signed Message:\n32', messageHash]
+      )
     );
 
-    return { prefixedMessageHash, nonce };
+    return { messageHash: ethSignedMessageHash, nonce };
   }
 
   async generateSignature(): Promise<SignatureData | null> {
@@ -33,10 +31,10 @@ export class WalletService {
     if (address == undefined) return null;
 
     let data = await this.generateVerificationCode(address);
-    let signature = await this.authService.sign(data.prefixedMessageHash);
+    let signature = await this.authService.sign(data.messageHash);
 
     return {
-      Message: data.prefixedMessageHash,
+      Message: data.messageHash,
       Signature: signature,
       Nounce: data.nonce,
       Address: address,
