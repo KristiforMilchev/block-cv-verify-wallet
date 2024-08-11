@@ -10,12 +10,20 @@ export class WalletService {
   constructor(private authService: AuthenticationService) {}
 
   private async generateVerificationCode(address: string) {
-    const nonce = Date.now(); // Generate a nonce or UUID for uniqueness
-    const messageHash = keccak256(
-      solidityPacked(['address', 'uint256'], [address, nonce])
+    const nonce = Date.now();
+    const message = solidityPacked(['address', 'uint256'], [address, nonce]);
+    const messageHash = keccak256(message);
+
+    const ethSignedMessageHash = keccak256(
+      solidityPacked(
+        ['string', 'bytes32'],
+        ['\x19Ethereum Signed Message:\n32', messageHash]
+      )
     );
-    return { messageHash, nonce };
+
+    return { messageHash: ethSignedMessageHash, nonce };
   }
+
   async generateSignature(): Promise<SignatureData | null> {
     let address = await this.authService.getConnectedAddress(
       this.authService.provider!
